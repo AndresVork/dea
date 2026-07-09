@@ -101,13 +101,13 @@ ui <- fluidPage(
     ),
     
     mainPanel(
-      h3("Efficiency ranking table"),
-      DTOutput("eff_table"),
-      
-      br(),
       
       h3("Efficiency ranking graph"),
-      plotOutput("eff_plot", height = "700px")
+      plotOutput("eff_plot", height = "700px"),
+      br(),
+      h3("Efficiency ranking table"),
+      DTOutput("eff_table")
+      
     )
   )
 )

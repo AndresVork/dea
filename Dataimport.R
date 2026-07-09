@@ -142,16 +142,14 @@ colnames(dfdata) <- tolower(colnames(dfdata))
 
 #Select necessary countries
 #List of countries to keep
-(mycountriesabbr = c("AUT", "BEL", "BGR", "CAN", "HRV", "CYP", "CZE", "DNK", "EST", "FIN", "FRA", "DEU", "HUN", "IRL", "ISR", "ITA", "LVA", "LTU", "NLD", "NOR", "POL", "PRT", "ROU", "SVK", "ESP", "SWE", "CHE", "GBR", "USA"))
 
-# OECD members, ISO3 codes
-# mycountriesabbr <- c(
-#   "AUS", "AUT", "BEL", "CAN", "CHL", "COL", "CRI", "CZE",
-#   "DNK", "EST", "FIN", "FRA", "DEU", "GRC", "HUN", "ISL",
-#   "IRL", "ISR", "ITA", "JPN", "KOR", "LVA", "LTU", "LUX",
-#   "MEX", "NLD", "NZL", "NOR", "POL", "PRT", "SVK", "SVN",
-#   "ESP", "SWE", "CHE", "TUR", "GBR", "USA"
-# )
+mycountriesabbr <- c(
+  "AUS", "AUT", "BEL", "CAN", "CHL", "COL", "CRI", "CZE",
+  "DNK", "EST", "FIN", "FRA", "DEU", "GRC", "HUN", "ISL",
+  "IRL", "ISR", "ITA", "JPN", "KOR", "LVA", "LTU", "LUX",
+  "MEX", "NLD", "NZL", "NOR", "POL", "PRT", "SVK", "SVN",
+  "ESP", "SWE", "CHE", "TUR", "GBR", "USA",
+  "BGR", "HRV", "CYP","ROU")
 
 dfdata <- dfdata |> 
   filter(ref_area %in% mycountriesabbr)
