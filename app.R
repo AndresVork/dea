@@ -91,6 +91,7 @@ ui <- fluidPage(
       ),
       
       tags$tr(tags$td("LFEXP"), tags$td("Life expectancy")),
+      tags$tr(tags$td("HALE"), tags$td("Healthy life expectancy")),
       tags$tr(tags$td("TRTM"), tags$td("Treatable mortality (inverse)")),
       tags$tr(tags$td("AVM"), tags$td("Avoidable mortality (inverse)")),
       tags$tr(tags$td("PREVM"), tags$td("Preventable mortality (inverse)")),

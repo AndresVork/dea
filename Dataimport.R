@@ -173,7 +173,7 @@ dfinm <- dfinm |> select(REF_AREA, MEASURE, obsTime, obsValue) |>
   mutate(obsValue = 1/obsValue)
 
 save(dfinm, file = "Data/dfinm.RData")
-#head(dfinm)
+head(dfinm)
 #table(dfinm$MEASURE, dfinm$REF_AREA)
 
 
@@ -207,10 +207,33 @@ save(dfaha, file = "Data/dfaha.RData")
 head(dfaha)
 
 
+#Output - Healthy life expectancy
+library(jsonlite)
+url <- "https://ghoapi.azureedge.net/api/WHOSIS_000002"
+x <- fromJSON(url, flatten = TRUE)
+hale_raw <- as_tibble(x$value)
+
+dfhale <- hale_raw |>
+  transmute(
+    obsTime = TimeDim,
+    REF_AREA = SpatialDim,
+    sex = Dim1,
+    obsValue = NumericValue
+  ) |> 
+  dplyr::mutate(MEASURE = "HALE", 
+                type = "output", 
+                obsTime = as.character(obsTime)) |> 
+  dplyr::filter(sex == "SEX_BTSX") |> 
+  arrange(obsTime, REF_AREA) |> 
+  select(REF_AREA, MEASURE, obsTime, obsValue, type)
+  
+save(dfhale, file = "Data/dfhale.RData")
+head(dfhale)
+
 #Append files
 
-dfdata <- bind_rows(dfle, dfavoid, dfworker, dfcheppp, dfbeds, dfinm, dfmatm) 
-#head(dfdata)
+dfdata <- bind_rows(dfle, dfavoid, dfworker, dfcheppp, dfbeds, dfinm, dfmatm, dfhale) 
+head(dfdata)
 colnames(dfdata) <- tolower(colnames(dfdata))
 
 #Select necessary countries
@@ -232,4 +255,3 @@ save(dfdata, file = "dfdata.RData")
 table(dfdata$type, dfdata$measure, useNA = "ifany")
 
 #
-
