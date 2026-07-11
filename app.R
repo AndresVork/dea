@@ -81,6 +81,7 @@ ui <- fluidPage(
     hr(),
     
     h4("Variable descriptions"),
+    helpText("Note: not all variables have all years"),
     
     tags$table(
       class = "table table-sm",
@@ -130,7 +131,7 @@ server <- function(input, output, session) {
     outputs <- input$outputs
     myyear <- input$year
     
-    validate(
+    shiny::validate(
       need(length(inputs) >= 1, "Choose at least one input variable."),
       need(length(outputs) >= 1, "Choose at least one output variable.")
     )
@@ -145,7 +146,7 @@ server <- function(input, output, session) {
       ) |> 
       filter(if_all(all_of(c(inputs, outputs)), ~ !is.na(.x)))
     
-    validate(
+    shiny::validate(
       need(nrow(dfmodel) > 0, "No complete country observations for this selection."),
       need(nrow(dfmodel) > length(inputs) + length(outputs),
            "Too few countries for the number of selected input and output variables.")
@@ -154,7 +155,7 @@ server <- function(input, output, session) {
     X <- as.matrix(dfmodel[, inputs])
     Y <- as.matrix(dfmodel[, outputs])
     
-    validate(
+    shiny::validate(
       need(all(X >= 0), "Input variables contain negative values."),
       need(all(Y >= 0), "Output variables contain negative values.")
     )
