@@ -7,6 +7,7 @@ library(scales)
 library(forcats)
 library(DT)
 
+
 # Load data
 load(file = "dfdata.RData")
 
@@ -93,9 +94,12 @@ ui <- fluidPage(
       tags$tr(tags$td("TRTM"), tags$td("Treatable mortality (inverse)")),
       tags$tr(tags$td("AVM"), tags$td("Avoidable mortality (inverse)")),
       tags$tr(tags$td("PREVM"), tags$td("Preventable mortality (inverse)")),
-      tags$tr(tags$td("MINU"), tags$td("Nurses")),
-      tags$tr(tags$td("PHYS"), tags$td("Doctors")),
+      tags$tr(tags$td("INM"), tags$td("Infant mortality (inverse)")),
+      tags$tr(tags$td("MATM"), tags$td("Maternal mortality per 100 000 (inverse)")),
+      tags$tr(tags$td("MINU"), tags$td("Nurses per 1000")),
+      tags$tr(tags$td("PHYS"), tags$td("Doctors per 1000")),
       tags$tr(tags$td("VQ"), tags$td("Health and social workers")),
+      tags$tr(tags$td("HB"), tags$td("Hospital beds per 1000")),
       tags$tr(tags$td("EXP_HEALTH"), tags$td("Health expenditure, USD PPP pc"))
     )
     ),
@@ -195,7 +199,7 @@ server <- function(input, output, session) {
         eff_vrs_raw = eff_vrs_raw,
         eff_crs_raw = eff_crs_raw
       ) |>
-      arrange(desc(eff_vrs)) |>
+      arrange(desc(eff_vrs), desc(ref_area)) |>
       mutate(rank_vrs = row_number()) |>
       select(
         rank_vrs,

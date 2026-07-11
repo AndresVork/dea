@@ -5,14 +5,25 @@ library(ggplot2)
 library(tidyr)
 library(rsdmx)
 library(DT)
-
 library(purrr)
 library(readr)
 library(stringr)
 library(tibble)
 
 
-#THE per capita	CHE per capita	Health & Social Workers	Physicians	Nurses	Hospital beds	HALE	DALY	IMR	MMR	Avoidable mortality
+# THE per capita	
+# CHE per capita	? - OECD
+# Health & Social Workers	- OECD
+# Physicians	- OECD
+# Nurses	- OECD
+# Hospital beds	- OECD
+# HALE	
+# DALY	
+# IMR	- OECD
+# MMR	 - OECD, not good indicator, as zero already
+# Avoidable mortality - OECD
+# Avoidable hospitalizations - OECD, TODO! How to aggregate
+
 
 #1. Data from OECD
 #https://data-explorer.oecd.org
@@ -88,7 +99,7 @@ table(dfworker$HEALTH_PROF_ACTIVITY_STATUS)
 # We take maximum of activity statuses
 
 dfworker <- dfworker %>%
-  group_by(REF_AREA, obsTime, HEALTH_PROF, type) %>%
+  group_by(REF_AREA, obsTime, HEALTH_PROF) %>%
   summarise(
     #If all are missing then also max is missing
     maxvalue = if (all(is.na(obsValue))) {
@@ -134,10 +145,72 @@ table(dfle$MEASURE)
 #TODO! Add other outputs
 # Output - HALE - health-adjustede life expectancy
 
+#Input - hospital beds --------
+#per 1000
+
+url <- "https://sdmx.oecd.org/public/rest/data/OECD.ELS.HD,DSD_HEALTH_REAC_HOSP@DF_BEDS_SECT,1.1/.HB.10P3HB.._T....?startPeriod=2015"
+
+tempbeds <- readSDMX(url)
+dfbeds <- as.data.frame(tempbeds)
+dfbeds <- dfbeds |> select(REF_AREA, MEASURE, obsTime, obsValue) |> 
+  mutate(type = "input")
+save(dfbeds, file = "Data/dfbeds.RData")
+head(dfbeds)
+table(dfbeds$MEASURE)
+
+
+#Output - infant mortality
+#No minimum gestation period
+
+url <- "https://sdmx.oecd.org/public/rest/data/OECD.ELS.HD,DSD_HEALTH_STAT@DF_HEALTH_STATUS,1.1/.A.INM.DT_10P3BR_L......NONE...?startPeriod=2015"
+#url <- "https://sdmx.oecd.org/public/rest/data/OECD.ELS.HD,DSD_HEALTH_STAT@DF_HEALTH_STATUS,1.1/.A.INM.DT_10P3BR_L.........?startPeriod=2015"
+
+tempinm <- readSDMX(url)
+dfinm <- as.data.frame(tempinm)
+dfinm <- dfinm |> select(REF_AREA, MEASURE, obsTime, obsValue) |> 
+  mutate(type = "output") |> 
+  #use inverse values, because we want these to be as small as possible
+  mutate(obsValue = 1/obsValue)
+
+save(dfinm, file = "Data/dfinm.RData")
+#head(dfinm)
+#table(dfinm$MEASURE, dfinm$REF_AREA)
+
+
+#Output - maternal mortality rate
+#Note - for many countries it is zero, hence we cannot use it
+
+url <- "https://sdmx.oecd.org/public/rest/data/OECD.ELS.HD,DSD_HEALTH_STAT@DF_HEALTH_STATUS,1.1/.A.MATM..........?startPeriod=2015"
+tempmatm <- readSDMX(url)
+dfmatm <- as.data.frame(tempmatm)
+dfmatm <- dfmatm |> select(REF_AREA, MEASURE, obsTime, obsValue) |> 
+  mutate(type = "output") |> 
+  #use inverse values, because we want these to be as small as possible
+  mutate(obsValue = 1/obsValue)
+
+save(dfmatm, file = "Data/dfmatm.RData")
+head(dfmatm)
+table(dfmatm$MEASURE, dfmatm$REF_AREA)
+
+#Output - Avoidable hospital admissions ---------s
+#TODO! How to aggregate?
+
+url <- "https://sdmx.oecd.org/public/rest/data/OECD.ELS.HD,DSD_HCQO@DF_PC,2.1/.A...._T.OBS..?startPeriod=2015"
+tempaha <- readSDMX(url)
+dfaha <- as.data.frame(tempaha)
+dfaha <- dfaha |> select(REF_AREA, MEASURE, obsTime, obsValue) |> 
+  mutate(type = "output") |> 
+  #use inverse values, because we want these to be as small as possible
+  mutate(obsValue = 1/obsValue)
+
+save(dfaha, file = "Data/dfaha.RData")
+head(dfaha)
+
+
 #Append files
 
-dfdata <- bind_rows(dfle, dfavoid, dfworker, dfcheppp) 
-head(dfdata)
+dfdata <- bind_rows(dfle, dfavoid, dfworker, dfcheppp, dfbeds, dfinm, dfmatm) 
+#head(dfdata)
 colnames(dfdata) <- tolower(colnames(dfdata))
 
 #Select necessary countries
@@ -155,6 +228,7 @@ dfdata <- dfdata |>
   filter(ref_area %in% mycountriesabbr)
 
 save(dfdata, file = "Data/dfdata.RData")
+save(dfdata, file = "dfdata.RData")
 table(dfdata$type, dfdata$measure, useNA = "ifany")
 
 #
